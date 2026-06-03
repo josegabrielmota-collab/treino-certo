@@ -1,0 +1,240 @@
+.anatomy-page-wrapper {
+  padding: 20px;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.anatomy-header {
+  h2 {
+    font-size: 1.6rem;
+    color: #ffffff;
+    font-weight: 700;
+  }
+  p {
+    color: #a8a8b3;
+    font-size: 0.95rem;
+    margin-top: 4px;
+  }
+}
+
+.anatomy-content-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 25px;
+
+  @media (min-width: 992px) {
+    grid-template-columns: 1.1fr 0.9fr;
+  }
+}
+
+.three-d-viewer-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.viewer-card {
+  background-color: #1a1a1e;
+  border: 1px solid #29292e;
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  height: 550px;
+
+  @media (min-width: 992px) {
+    height: 620px;
+  }
+}
+
+.image-dynamic-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #141416;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 25px;
+  border: 1px solid #222226;
+  justify-content: center;
+  align-items: center;
+}
+
+.anatomy-chart-header {
+  width: 100%;
+  text-align: left;
+  border-bottom: 1px solid #222226;
+  padding-bottom: 10px;
+  margin-bottom: auto;
+
+  h3 {
+    font-size: 1.1rem;
+    color: #ffffff;
+    font-weight: 600;
+  }
+  span {
+    font-size: 0.75rem;
+    color: #00ff88;
+  }
+}
+
+.anatomy-2d-img {
+  max-width: 100%;
+  max-height: 380px;
+  object-fit: contain;
+  margin-bottom: auto;
+  animation: chartIn 0.2s ease-out;
+}
+
+.viewer-badge {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: rgba(0, 255, 136, 0.1);
+  color: #00ff88;
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: bold;
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  z-index: 5;
+}
+
+.muscle-encyclopedia-container {
+  display: flex;
+  flex-direction: column;
+  background-color: #1a1a1e;
+  border: 1px solid #29292e;
+  border-radius: 12px;
+  padding: 20px;
+
+  h3 {
+    font-size: 1.2rem;
+    color: #e1e1e6;
+    margin-bottom: 8px;
+  }
+  .section-desc {
+    color: #a8a8b3;
+    font-size: 0.88rem;
+    margin-bottom: 20px;
+  }
+}
+
+.muscle-list-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-height: 440px;
+  overflow-y: auto;
+  padding-right: 10px;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #1a1a1e;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #29292e;
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: #00ff88;
+  }
+
+  @media (min-width: 992px) {
+    max-height: 500px;
+  }
+}
+
+.muscle-info-card {
+  background-color: #121214;
+  border: 1px solid #29292e;
+  border-radius: 10px;
+  padding: 15px;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+
+  &:hover {
+    border-color: #50505a;
+    background-color: #16161a;
+  }
+
+  &.active-card {
+    border-color: #00ff88;
+    background-color: rgba(0, 255, 136, 0.01);
+  }
+
+  .muscle-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #29292e;
+
+    .muscle-icon {
+      font-size: 1.3rem;
+    }
+    h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .active-dot {
+      margin-left: auto;
+      font-size: 0.68rem;
+      color: #00ff88;
+      font-weight: 700;
+    }
+  }
+
+  .muscle-data-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .data-group {
+    strong {
+      color: #8d8d99;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+    }
+    p {
+      color: #e1e1e6;
+      font-size: 0.88rem;
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+  }
+
+  .importance-group {
+    strong {
+      color: #00ff88;
+    }
+    p {
+      border-left: 2px solid #29292e;
+      padding-left: 10px;
+    }
+  }
+
+  &.active-card .importance-group p {
+    border-left-color: #00ff88;
+  }
+}
+
+@keyframes chartIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

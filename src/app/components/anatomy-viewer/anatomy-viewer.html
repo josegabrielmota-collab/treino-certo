@@ -1,0 +1,62 @@
+<div class="anatomy-page-wrapper">
+  <div class="anatomy-header">
+    <h2>🔬 Atlas Anatômico Interativo</h2>
+    <p>
+      Selecione um grupo muscular na lista lateral para visualizar sua estrutura anatômica
+      detalhada.
+    </p>
+  </div>
+
+  <div class="anatomy-content-grid">
+    <div class="three-d-viewer-container">
+      <div class="viewer-card">
+        <div class="viewer-badge">VISUALIZAÇÃO MÉDICA ATIVA</div>
+
+        <div class="image-dynamic-container">
+          <div class="anatomy-chart-header">
+            <h3>{{ selectedMuscle.name | uppercase }}</h3>
+            <span>Diagrama de Isolamento Biomecânico</span>
+          </div>
+
+          <img [src]="selectedMuscle.image" [alt]="selectedMuscle.name" class="anatomy-2d-img" />
+        </div>
+      </div>
+    </div>
+
+    <div class="muscle-encyclopedia-container">
+      <h3>📚 Glossário Muscular e Biomecânica</h3>
+      <p class="section-desc">
+        Explore a função e a justificativa científica para treinar cada grupo:
+      </p>
+
+      <div class="muscle-list-scroll">
+        @for (muscle of muscleGroups; track muscle.id) {
+          <div
+            class="muscle-info-card clickable"
+            [class.active-card]="selectedMuscle?.id === muscle.id"
+            (click)="selectMuscle(muscle)"
+          >
+            <div class="muscle-card-header">
+              <span class="muscle-icon">{{ muscle.icon }}</span>
+              <h4>{{ muscle.name }}</h4>
+              @if (selectedMuscle?.id === muscle.id) {
+                <span class="active-dot">● SELECIONADO</span>
+              }
+            </div>
+
+            <div class="muscle-data-body">
+              <div class="data-group">
+                <strong>Principais Funções Biomecânicas:</strong>
+                <p>{{ muscle.function }}</p>
+              </div>
+              <div class="data-group importance-group">
+                <strong>Importância Fisiológica e Prática do Treino:</strong>
+                <p>{{ muscle.importance }}</p>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

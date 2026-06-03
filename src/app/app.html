@@ -1,0 +1,86 @@
+@if (!isLoggedIn) {
+  <div class="login-wrapper">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="login-logo">Treino <span>Certo</span></div>
+        <p>Acesse sua plataforma de evolução estratégica</p>
+      </div>
+
+      <form (submit)="$event.preventDefault(); fazerLogin()">
+        <div class="input-group">
+          <label for="email">E-mail</label>
+          <input
+            type="email"
+            id="email"
+            placeholder="Seu e-mail ou usuário"
+            required
+            value="micael@treinocerto.com"
+          />
+        </div>
+
+        <div class="input-group">
+          <label for="password">Senha</label>
+          <input type="password" id="password" placeholder="••••••••" required value="123456" />
+        </div>
+
+        <div class="login-options">
+          <label><input type="checkbox" checked /> Lembrar de mim</label>
+          <a href="#">Esqueceu a senha?</a>
+        </div>
+
+        <button type="submit" class="btn-login">Entrar no Painel</button>
+      </form>
+
+      <div class="login-footer">
+        <p>Não tem uma conta? <a href="#">Criar conta grátis</a></p>
+      </div>
+    </div>
+  </div>
+} @else {
+  <div class="app-container">
+    <header class="app-header">
+      <div class="logo">Treino <span>Certo</span></div>
+      <div class="user-profile">💪 Olá, Micael</div>
+    </header>
+
+    <main class="app-content">
+      @if (activeTab === 'inicio') {
+        <app-home></app-home>
+      } @else if (activeTab === 'treinos') {
+        <app-workout-dashboard></app-workout-dashboard>
+      } @else if (activeTab === 'anatomia') {
+        <app-anatomy-viewer></app-anatomy-viewer>
+      }
+    </main>
+
+    <nav class="app-nav">
+      <a
+        (click)="changeTab('inicio')"
+        class="nav-item"
+        [class.active]="activeTab === 'inicio'"
+        style="cursor: pointer"
+      >
+        <span class="icon">🏠</span>
+        <span class="label">Início</span>
+      </a>
+      <a
+        (click)="changeTab('treinos')"
+        class="nav-item"
+        [class.active]="activeTab === 'treinos'"
+        style="cursor: pointer"
+      >
+        <span class="icon">🏋️</span>
+        <span class="label">Treinos</span>
+      </a>
+      <a
+        (click)="changeTab('anatomia')"
+        class="nav-item"
+        [class.active]="activeTab === 'anatomia'"
+        style="cursor: pointer"
+      >
+        <span class="icon">🫀</span>
+        <span class="label">Anatomia</span>
+      </a>
+    </nav>
+  </div>
+}
