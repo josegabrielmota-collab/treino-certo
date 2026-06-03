@@ -175,3 +175,24 @@
     color: #ff5050;
   }
 }
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #121214;
+  gap: 16px;
+
+  .loading-logo {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ffffff;
+    span { color: #00ff88; }
+  }
+
+  p {
+    color: #a8a8b3;
+    font-size: 0.9rem;
+  }
+}

@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
-import { initializeApp } from 'firebase/app';
 import {
-  getFirestore,
   collection,
   addDoc,
   query,
@@ -9,10 +7,9 @@ import {
   getDocs,
   deleteDoc,
   doc,
-  orderBy,
   Timestamp
 } from 'firebase/firestore';
-import { environment } from '../../environments/environment';
+import { firebaseDb } from './firebase';
 
 export interface Exercicio {
   nome: string;
@@ -29,26 +26,23 @@ export interface Treino {
   criadoEm: Timestamp;
 }
 
-const app = initializeApp(environment.firebase);
-const db = getFirestore(app);
-
 @Injectable({ providedIn: 'root' })
 export class TreinoService {
 
   async salvarTreino(treino: Omit<Treino, 'id'>): Promise<void> {
-    await addDoc(collection(db, 'treinos'), treino);
+    await addDoc(collection(firebaseDb, 'treinos'), treino);
   }
 
   async buscarTreinos(uid: string): Promise<Treino[]> {
     const q = query(
-        collection(db, 'treinos'),
-        where('uid', '==', uid)
+      collection(firebaseDb, 'treinos'),
+      where('uid', '==', uid)
     );
     const snapshot = await getDocs(q);
     return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Treino));
   }
 
   async deletarTreino(id: string): Promise<void> {
-    await deleteDoc(doc(db, 'treinos', id));
+    await deleteDoc(doc(firebaseDb, 'treinos', id));
   }
 }

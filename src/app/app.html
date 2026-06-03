@@ -1,4 +1,10 @@
-@if (!auth.isLoggedIn) {
+@if (auth.currentUser() === undefined) {
+  <!-- Firebase ainda verificando sessão -->
+  <div class="loading-screen">
+    <div class="loading-logo">Treino <span>Certo</span></div>
+    <p>Carregando...</p>
+  </div>
+} @else if (!auth.isLoggedIn) {
   <div class="login-wrapper">
     <div class="login-card">
       <div class="login-header">
@@ -16,11 +22,9 @@
             <label>Senha</label>
             <input type="password" placeholder="••••••••" [(ngModel)]="senha" name="senha" required />
           </div>
-
           @if (erro) {
             <div class="erro-msg">{{ erro }}</div>
           }
-
           <button type="submit" class="btn-login" [disabled]="carregando">
             {{ carregando ? 'Entrando...' : 'Entrar no Painel' }}
           </button>
@@ -39,11 +43,9 @@
             <label>Confirmar Senha</label>
             <input type="password" placeholder="Repita a senha" [(ngModel)]="confirmarSenha" name="confirmarSenha" required />
           </div>
-
           @if (erro) {
             <div class="erro-msg">{{ erro }}</div>
           }
-
           <button type="submit" class="btn-login" [disabled]="carregando">
             {{ carregando ? 'Criando conta...' : 'Criar Conta' }}
           </button>
@@ -81,16 +83,13 @@
 
     <nav class="app-nav">
       <a (click)="changeTab('inicio')" class="nav-item" [class.active]="activeTab === 'inicio'" style="cursor:pointer">
-        <span class="icon">🏠</span>
-        <span class="label">Início</span>
+        <span class="icon">🏠</span><span class="label">Início</span>
       </a>
       <a (click)="changeTab('treinos')" class="nav-item" [class.active]="activeTab === 'treinos'" style="cursor:pointer">
-        <span class="icon">🏋️</span>
-        <span class="label">Treinos</span>
+        <span class="icon">🏋️</span><span class="label">Treinos</span>
       </a>
       <a (click)="changeTab('anatomia')" class="nav-item" [class.active]="activeTab === 'anatomia'" style="cursor:pointer">
-        <span class="icon">🫀</span>
-        <span class="label">Anatomia</span>
+        <span class="icon">🫀</span><span class="label">Anatomia</span>
       </a>
     </nav>
   </div>

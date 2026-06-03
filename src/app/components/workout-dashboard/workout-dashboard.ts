@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, effect, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TreinoService, Treino, Exercicio } from '../../services/treino.service';
@@ -12,13 +12,12 @@ import { Timestamp } from 'firebase/firestore';
   templateUrl: './workout-dashboard.html',
   styleUrls: ['./workout-dashboard.scss'],
 })
-export class WorkoutDashboardComponent implements OnInit {
+export class WorkoutDashboardComponent {
   treinos: Treino[] = [];
   carregando = false;
   salvando = false;
   erro = '';
 
-  // Formulário
   mostrarFormulario = false;
   nomeTreino = '';
   exercicios: Exercicio[] = [{ nome: '', series: 3, repeticoes: 10 }];
@@ -27,35 +26,29 @@ export class WorkoutDashboardComponent implements OnInit {
     private treinoService: TreinoService,
     private authService: AuthService,
     private cdr: ChangeDetectorRef
-  ) {}
-  ngOnInit() {
-    const user = this.authService.currentUser();
-    if (user) {
-      this.carregarTreinos();
-    } else {
-      const interval = setInterval(() => {
-        if (this.authService.currentUser()) {
-          clearInterval(interval);
-          this.carregarTreinos();
-        }
-      }, 200);
-    }
+  ) {
+    // Reage automaticamente quando o signal do usuário muda
+    effect(() => {
+      const user = this.authService.currentUser();
+      if (user) {
+        this.carregarTreinos();
+      }
+    });
   }
 
   async carregarTreinos() {
     const uid = this.authService.currentUser()?.uid;
-    console.log('UID ao carregar:', uid);
     if (!uid) return;
     this.carregando = true;
+    this.cdr.detectChanges();
     try {
       this.treinos = await this.treinoService.buscarTreinos(uid);
-      console.log('Treinos retornados:', this.treinos);
-      this.cdr.detectChanges();
     } catch (e) {
-      console.error('Erro ao carregar:', e);
+      console.error('Erro ao carregar treinos:', e);
       this.erro = 'Erro ao carregar treinos.';
     } finally {
       this.carregando = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -91,11 +84,12 @@ export class WorkoutDashboardComponent implements OnInit {
       this.nomeTreino = '';
       this.exercicios = [{ nome: '', series: 3, repeticoes: 10 }];
       this.mostrarFormulario = false;
-      setTimeout(() => this.carregarTreinos(), 300);
+      await this.carregarTreinos();
     } catch (e) {
       this.erro = 'Erro ao salvar treino.';
     } finally {
       this.salvando = false;
+      this.cdr.detectChanges();
     }
   }
 
