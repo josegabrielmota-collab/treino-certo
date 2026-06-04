@@ -1,20 +1,22 @@
-<div class="dashboard-wrapper">
+<div class="dashboard-body">
+
   <div class="dashboard-header">
-    <h2>🏋️ Meus Treinos</h2>
-    @if (!mostrarFormulario) {
-      <button class="btn-novo" (click)="mostrarFormulario = true">+ Novo Treino</button>
-    }
+    <div class="header-top">
+      <h2>📋 Meus Treinos</h2>
+      @if (!mostrarFormulario) {
+        <button class="btn-novo" (click)="mostrarFormulario = true">+ Novo Treino</button>
+      }
+    </div>
+    <p>Registre e acompanhe sua evolução nos treinos.</p>
   </div>
 
   @if (mostrarFormulario) {
     <div class="form-card">
       <h3>Novo Treino</h3>
-
       <div class="input-group">
         <label>Nome do Treino</label>
         <input type="text" placeholder="Ex: Treino A - Peito e Tríceps" [(ngModel)]="nomeTreino" />
       </div>
-
       <div class="exercicios-lista">
         <label>Exercícios</label>
         @for (ex of exercicios; track $index) {
@@ -27,13 +29,10 @@
           </div>
         }
       </div>
-
       <button class="btn-add-ex" (click)="adicionarExercicio()">+ Exercício</button>
-
       @if (erro) {
         <div class="erro-msg">{{ erro }}</div>
       }
-
       <div class="form-actions">
         <button class="btn-cancelar" (click)="cancelar()">Cancelar</button>
         <button class="btn-salvar" (click)="salvarTreino()" [disabled]="salvando">
@@ -50,7 +49,7 @@
       <p>Nenhum treino cadastrado ainda.</p>
       <p>Clique em <strong>+ Novo Treino</strong> para começar.</p>
     </div>
-  } @else {
+  } @else if (!mostrarFormulario) {
     <div class="treinos-grid">
       @for (treino of treinos; track treino.id) {
         <div class="treino-card">
@@ -73,4 +72,204 @@
       }
     </div>
   }
+
+  <hr class="section-divider" />
+
+  <div class="dashboard-header">
+    <h2>🏋️‍♂️ Guia de Exercícios por Agrupamento</h2>
+    <p>Explore as melhores opções de movimentos para cada estímulo muscular.</p>
+  </div>
+
+  <div class="builder-grid">
+    <section class="muscle-group-section">
+      <div class="group-title">🍒 Exercícios para Peitoral</div>
+      <div class="exercises-list">
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Supino Reto (Barra ou Halteres)</span><span class="ex-desc">Foco em Peitoral Maior (Massa Global)</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Supino Inclinado com Halteres</span><span class="ex-desc">Foco na Porção Clavicular (Superior)</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Crucifixo Máquina / Pec Deck</span><span class="ex-desc">Isolamento e Máximo Alongamento</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Cross Over (Polia Alta)</span><span class="ex-desc">Foco na Porção Inferior e Contração</span></div></div>
+      </div>
+    </section>
+
+    <section class="muscle-group-section">
+      <div class="group-title">🦅 Exercícios para Costas (Dorsal)</div>
+      <div class="exercises-list">
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Puxada Alta na Polia</span><span class="ex-desc">Foco em Largura e Grande Dorsal</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Remada Curvada com Barra</span><span class="ex-desc">Foco em Espessura e Miolo das Costas</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Remada Baixa Triângulo</span><span class="ex-desc">Trabalho Consistente de Dorsal Baixo</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Pull Down na Polia Alta</span><span class="ex-desc">Isolamento puro da Dorsal sem Bíceps</span></div></div>
+      </div>
+    </section>
+
+    <section class="muscle-group-section">
+      <div class="group-title">🛡️ Exercícios para Ombros (Deltoides)</div>
+      <div class="exercises-list">
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Desenvolvimento com Halteres</span><span class="ex-desc">Foco na Porção Anterior (Frente)</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Elevação Lateral com Halteres</span><span class="ex-desc">Foco na Porção Lateral (Aspecto Largo)</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Crucifixo Invertido (Posterior)</span><span class="ex-desc">Foco no Deltoide Posterior (Costas do Ombro)</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Encolhimento com Halteres</span><span class="ex-desc">Foco no Trapézio Superior</span></div></div>
+      </div>
+    </section>
+
+    <section class="muscle-group-section">
+      <div class="group-title">⚡ Exercícios para Tríceps</div>
+      <div class="exercises-list">
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Tríceps na Polia (Corda ou Barra)</span><span class="ex-desc">Foco na Porção Lateral e Contração</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Tríceps Testa com Barra W</span><span class="ex-desc">Foco na Porção Longa (Massa de Trás)</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Tríceps Coice na Polia</span><span class="ex-desc">Isolamento e Pico de Contração</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Mergulho nas Paralelas / Banco</span><span class="ex-desc">Exercício Composto de Alta Potência</span></div></div>
+      </div>
+    </section>
+
+    <section class="muscle-group-section">
+      <div class="group-title">💪 Exercícios para Bíceps</div>
+      <div class="exercises-list">
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Rosca Direta com Barra W</span><span class="ex-desc">Construção Geral de Massa do Bíceps</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Rosca Alternada com Halteres</span><span class="ex-desc">Trabalho Unilateral com Supinação</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Rosca Scott no Banco</span><span class="ex-desc">Isolamento Rigoroso e Pico do Bíceps</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Rosca Martelo com Halteres</span><span class="ex-desc">Foco no Braquial (Espessura) e Antebraço</span></div></div>
+      </div>
+    </section>
+
+    <section class="muscle-group-section">
+      <div class="group-title">🥖 Exercícios para Antebraço</div>
+      <div class="exercises-list">
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Rosca Inversa com Barra W</span><span class="ex-desc">Foco em Braquiorradial e Extensores</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Flexão de Punho (Barra ou Halteres)</span><span class="ex-desc">Isolamento dos Flexores do Antebraço</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Extensão de Punho com Halteres</span><span class="ex-desc">Fortalecimento da Região Superior do Braço</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Caminhada do Fazendeiro (Farmer's Walk)</span><span class="ex-desc">Força de Pegada Brutal e Resistência</span></div></div>
+      </div>
+    </section>
+
+    <section class="muscle-group-section">
+      <div class="group-title">🍗 Exercícios para Quadríceps</div>
+      <div class="exercises-list">
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Agachamento Livre com Barra</span><span class="ex-desc">O Rei dos Exercícios de Pernas</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Leg Press 45°</span><span class="ex-desc">Trabalho Pesado de Força com Segurança</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Cadeira Extensora</span><span class="ex-desc">Isolamento e Definição do Reto Femoral</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Avanço com Halteres</span><span class="ex-desc">Trabalho Unilateral com Equilíbrio</span></div></div>
+      </div>
+    </section>
+
+    <section class="muscle-group-section">
+      <div class="group-title">🦵 Exercícios para Posteriores (Isquiotibiais)</div>
+      <div class="exercises-list">
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Stiff com Barra ou Halteres</span><span class="ex-desc">Extensão de Quadril e Posterior de Coxa</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Cadeira Flexora</span><span class="ex-desc">Isolamento Direto dos Isquiotibiais</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Elevação Pélvica (Glúteo-Isquio)</span><span class="ex-desc">Foco em Glúteo e Posterior Integrado</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Mesa Flexora (Prone Leg Curl)</span><span class="ex-desc">Isolamento com Amplitude Longa</span></div></div>
+      </div>
+    </section>
+
+    <section class="muscle-group-section">
+      <div class="group-title">🍑 Exercícios para Glúteos</div>
+      <div class="exercises-list">
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Agachamento Sumô com Halteres</span><span class="ex-desc">Foco em Glúteo Médio e Adutores</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Elevação Pélvica com Barra</span><span class="ex-desc">Foco no Glúteo Máximo (Pico de Contração)</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Cadeira Abdutora (Pushing)</span><span class="ex-desc">Foco no Glúteo Médio (Lateral)</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Avanço Lateral com Halteres</span><span class="ex-desc">Foco no Glúteo Médio e Quadril</span></div></div>
+      </div>
+    </section>
+
+    <section class="muscle-group-section">
+      <div class="group-title">🧦 Exercícios para Panturrilhas</div>
+      <div class="exercises-list">
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Panturrilha em Pé na Máquina</span><span class="ex-desc">Foco no Gastrocnêmio (Massa Alta)</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Panturrilha Sentado na Máquina</span><span class="ex-desc">Foco no Sóleo (Profundo)</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Panturrilha no Leg Press</span><span class="ex-desc">Variação Confortável para Cargas Altas</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Gêmeos Unilateral com Halter</span><span class="ex-desc">Estímulo Focado com Peso Corporal</span></div></div>
+      </div>
+    </section>
+
+    <section class="muscle-group-section">
+      <div class="group-title">🍫 Core & Abdômen</div>
+      <div class="exercises-list">
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Abdominal Infra (Elevação de Pernas)</span><span class="ex-desc">Foco na Porção Inferior da Linha de Cintura</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Abdominal Supra Clássico</span><span class="ex-desc">Foco na Porção Superior do Reto Abdominal</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Prancha Isométrica</span><span class="ex-desc">Fortalecimento e Estabilização Profunda do Core</span></div></div>
+        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Abdominal Russo (Giro Oblíquo)</span><span class="ex-desc">Foco nas Laterais do Abdômen</span></div></div>
+      </div>
+    </section>
+  </div>
+
+  <hr class="section-divider" />
+
+  <section class="routines-section">
+    <div class="section-title">📋 Estruturas de Fichas Prontas (Modelos de Divisão)</div>
+    <p class="section-subtitle">
+      Selecione uma das divisões consagradas para ver como encaixar os exercícios acima no seu planejamento:
+    </p>
+
+    <div class="division-selector">
+      <button class="btn-tab" (click)="activeDivision = 'abc'" [class.active]="activeDivision === 'abc'">Estrutura ABC</button>
+      <button class="btn-tab" (click)="activeDivision = 'abcd'" [class.active]="activeDivision === 'abcd'">Estrutura ABCD</button>
+      <button class="btn-tab" (click)="activeDivision = 'abcde'" [class.active]="activeDivision === 'abcde'">Estrutura ABCDE</button>
+    </div>
+
+    <div class="routines-display-box">
+      @if (activeDivision === 'abc') {
+        <div class="division-content">
+          <h3>📆 Cronograma ABC (Frequência Alta)</h3>
+          <div class="days-grid">
+            <div class="day-block"><strong>Treino A • Superior (Peito, Ombro, Tríceps):</strong> Supino Reto, Supino Inclinado, Elevação Lateral e Tríceps Polia.</div>
+            <div class="day-block"><strong>Treino B • Superior (Costas, Bíceps, Antebraço):</strong> Puxada Alta, Remada Curvada, Rosca Direta e Rosca Inversa.</div>
+            <div class="day-block"><strong>Treino C • Inferior (Pernas Completo & Core):</strong> Agachamento, Leg Press, Cadeira Flexora e Prancha.</div>
+          </div>
+        </div>
+      }
+      @if (activeDivision === 'abcd') {
+        <div class="division-content">
+          <h3>📆 Cronograma ABCD (Volume Intermediário)</h3>
+          <div class="days-grid">
+            <div class="day-block"><strong>Treino A • Peitoral e Tríceps:</strong> Supino Reto, Supino Inclinado, Crossover e Tríceps Testa.</div>
+            <div class="day-block"><strong>Treino B • Dorsais e Bíceps:</strong> Puxada Alta, Remada Baixa, Pull Down e Rosca Scott.</div>
+            <div class="day-block"><strong>Treino C • Ombros, Antebraço e Core:</strong> Desenvolvimento, Elevação Lateral, Rosca Inversa e Abdominal Infra.</div>
+            <div class="day-block"><strong>Treino D • Membros Inferiores:</strong> Agachamento, Leg Press, Stiff e Gêmeos Sentado.</div>
+          </div>
+        </div>
+      }
+      @if (activeDivision === 'abcde') {
+        <div class="division-content">
+          <h3>📆 Cronograma ABCDE (Foco Isomórfico de Alta Intensidade)</h3>
+          <div class="days-grid">
+            <div class="day-block"><strong>Treino A • Peito Isolado:</strong> Supino Reto, Supino Inclinado, Pec Deck e Crossover.</div>
+            <div class="day-block"><strong>Treino B • Costas e Antebraço:</strong> Puxada Alta, Remada Curvada, Pull Down e Flexão de Punho.</div>
+            <div class="day-block"><strong>Treino C • Membros Inferiores:</strong> Agachamento Livre, Leg Press, Stiff e Elevação Pélvica.</div>
+            <div class="day-block"><strong>Treino D • Ombros e Core:</strong> Desenvolvimento, Elevação Lateral, Posterior Máquina e Abdominais.</div>
+            <div class="day-block"><strong>Treino E • Braços Completos:</strong> Rosca Direta, Tríceps Polia, Rosca Scott e Tríceps Testa.</div>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="pillars-section">
+    <div class="section-title">📊 Os 3 Pilares Fundamentais do Treino</div>
+    <div class="pillars-grid">
+      <div class="pillar-card">
+        <span class="pillar-icon">🎯</span>
+        <h4>Perfeição na Execução</h4>
+        <p>A amplitude máxima e cadência controlada geram mais estresse metabólico e previnem lesões graves.</p>
+      </div>
+      <div class="pillar-card">
+        <span class="pillar-icon">📈</span>
+        <h4>Progressão de Carga</h4>
+        <p>Tente aumentar o peso ou o número de repetições a cada semana para forçar o processo de hipertrofia.</p>
+      </div>
+      <div class="pillar-card">
+        <span class="pillar-icon">⏱️</span>
+        <h4>Tempo de Descanso</h4>
+        <p>Descanse de 90 a 120 segundos. Isso restaura o estoque de energia celular para manter a performance nas séries.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="science-section">
+    <div class="section-title">🔬 Base Científica: Por que rotacionar seus treinos?</div>
+    <div class="science-card">
+      <p>Estudos da ciência do esporte apontam que o sistema neuromuscular atinge um platô de adaptação biológica a cada <strong>8 a 12 weeks</strong> de estímulos idênticos.</p>
+      <p style="margin-top: 10px">Mudar estrategicamente a sua divisão (passar de um ABC para um ABCD, por exemplo) ou alterar a seleção e ordem dos exercícios quebra esse estado estável. Isso recruta novas unidades motoras adormecidas, reinicia o processo de microlesões saudáveis nas fibras e gera novos picos de força, garantindo evolução contínua.</p>
+    </div>
+  </section>
+
 </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, effect, ChangeDetectorRef } from '@angular/core';
+import { Component, effect, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TreinoService, Treino, Exercicio } from '../../services/treino.service';
@@ -13,21 +13,23 @@ import { Timestamp } from 'firebase/firestore';
   styleUrls: ['./workout-dashboard.scss'],
 })
 export class WorkoutDashboardComponent {
+  // --- Meus Treinos (Firebase) ---
   treinos: Treino[] = [];
   carregando = false;
   salvando = false;
   erro = '';
-
   mostrarFormulario = false;
   nomeTreino = '';
   exercicios: Exercicio[] = [{ nome: '', series: 3, repeticoes: 10 }];
+
+  // --- Guia de Divisões (local) ---
+  activeDivision: string = 'abc';
 
   constructor(
     private treinoService: TreinoService,
     private authService: AuthService,
     private cdr: ChangeDetectorRef
   ) {
-    // Reage automaticamente quando o signal do usuário muda
     effect(() => {
       const user = this.authService.currentUser();
       if (user) {
@@ -65,13 +67,11 @@ export class WorkoutDashboardComponent {
   async salvarTreino() {
     const uid = this.authService.currentUser()?.uid;
     if (!uid || !this.nomeTreino.trim()) return;
-
     const exerciciosValidos = this.exercicios.filter(e => e.nome.trim());
     if (exerciciosValidos.length === 0) {
       this.erro = 'Adicione pelo menos um exercício.';
       return;
     }
-
     this.salvando = true;
     this.erro = '';
     try {
