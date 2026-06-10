@@ -1,20 +1,23 @@
-import { Injectable, signal } from '@angular/core';
+import { ApplicationRef, Injectable, signal } from '@angular/core';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  User
+  User,
 } from 'firebase/auth';
+
 import { firebaseAuth } from './firebase';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   currentUser = signal<User | null | undefined>(undefined);
 
-  constructor() {
+  constructor(private readonly appRef: ApplicationRef) {
     onAuthStateChanged(firebaseAuth, (user) => {
       this.currentUser.set(user);
+
+      queueMicrotask(() => this.appRef.tick());
     });
   }
 
@@ -30,7 +33,6 @@ export class AuthService {
     await signOut(firebaseAuth);
   }
 
-  // undefined = ainda carregando, null = deslogado, User = logado
   get isLoggedIn(): boolean {
     return this.currentUser() !== null && this.currentUser() !== undefined;
   }
@@ -41,7 +43,11 @@ export class AuthService {
 
   get nomeUsuario(): string {
     const user = this.currentUser();
-    if (!user) return 'Usuário';
+
+    if (!user) {
+      return 'Usuário';
+    }
+
     return user.displayName || user.email?.split('@')[0] || 'Usuário';
   }
 }

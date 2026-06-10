@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, effect } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Timestamp } from 'firebase/firestore';
 
@@ -59,7 +59,8 @@ export class WorkoutDashboardComponent implements OnInit {
 
   constructor(
     private readonly treinoService: TreinoService,
-    public readonly authService: AuthService
+    public readonly authService: AuthService,
+    private readonly cdr: ChangeDetectorRef
   ) {
     effect(() => {
       const usuario = this.authService.currentUser();
@@ -563,6 +564,9 @@ export class WorkoutDashboardComponent implements OnInit {
       musculos: [{ nome: 'Abdômen/Core', papel: 'principal' }],
     },
   ];
+  private atualizarTela(): void {
+    this.cdr.detectChanges();
+  }
 
       ngOnInit(): void {
     for (const exercicio of this.exercicios) {
@@ -580,6 +584,7 @@ export class WorkoutDashboardComponent implements OnInit {
       this.mensagem = 'Não foi possível carregar os treinos salvos no Firebase.';
     } finally {
       this.carregandoTreinos = false;
+      this.atualizarTela();
     }
   }
 
@@ -783,6 +788,7 @@ export class WorkoutDashboardComponent implements OnInit {
       this.mensagem = 'Erro ao salvar o treino no Firebase.';
     } finally {
       this.salvandoTreino = false;
+      this.atualizarTela();
     }
   }
 
@@ -802,6 +808,8 @@ export class WorkoutDashboardComponent implements OnInit {
     } catch (erro) {
       console.error('Erro ao excluir treino do Firebase:', erro);
       this.mensagem = 'Erro ao excluir o treino do Firebase.';
+    } finally {
+      this.atualizarTela();
     }
   }
 
