@@ -1,19 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { AnatomyViewerComponent } from './anatomy-viewer';
 
-import { AnatomyViewer } from './anatomy-viewer';
-
-describe('AnatomyViewer', () => {
-  let component: AnatomyViewer;
-  let fixture: ComponentFixture<AnatomyViewer>;
+describe('AnatomyViewerComponent', () => {
+  let component: AnatomyViewerComponent;
+  let fixture: ComponentFixture<AnatomyViewerComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AnatomyViewer],
+      imports: [AnatomyViewerComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(AnatomyViewer);
+    fixture = TestBed.createComponent(AnatomyViewerComponent);
     component = fixture.componentInstance;
-    await fixture.whenStable();
+    fixture.detectChanges();
   });
 
   it('should create', () => {

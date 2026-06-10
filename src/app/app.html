@@ -73,7 +73,7 @@
 
     <main class="app-content">
       @if (activeTab === 'inicio') {
-        <app-home></app-home>
+        <app-home (openTreinos)="changeTab('treinos')"></app-home>
       } @else if (activeTab === 'treinos') {
         <app-workout-dashboard></app-workout-dashboard>
       } @else if (activeTab === 'anatomia') {

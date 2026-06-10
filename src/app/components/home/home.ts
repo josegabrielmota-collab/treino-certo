@@ -1,10 +1,13 @@
-import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Output } from '@angular/core';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './home.html',
   styleUrls: ['./home.scss'],
 })
-export class HomeComponent {}
+export class HomeComponent {
+  @Output() openTreinos = new EventEmitter<void>();
+}

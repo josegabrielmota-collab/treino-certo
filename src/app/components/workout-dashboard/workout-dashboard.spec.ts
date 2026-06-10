@@ -1,19 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { WorkoutDashboardComponent } from './workout-dashboard';
 
-import { WorkoutDashboard } from './workout-dashboard';
-
-describe('WorkoutDashboard', () => {
-  let component: WorkoutDashboard;
-  let fixture: ComponentFixture<WorkoutDashboard>;
+describe('WorkoutDashboardComponent', () => {
+  let component: WorkoutDashboardComponent;
+  let fixture: ComponentFixture<WorkoutDashboardComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [WorkoutDashboard],
+      imports: [WorkoutDashboardComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(WorkoutDashboard);
+    fixture = TestBed.createComponent(WorkoutDashboardComponent);
     component = fixture.componentInstance;
-    await fixture.whenStable();
+    fixture.detectChanges();
   });
 
   it('should create', () => {

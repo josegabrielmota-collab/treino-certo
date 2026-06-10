@@ -1,275 +1,251 @@
 <div class="dashboard-body">
-
-  <div class="dashboard-header">
-    <div class="header-top">
-      <h2>📋 Meus Treinos</h2>
-      @if (!mostrarFormulario) {
-        <button class="btn-novo" (click)="mostrarFormulario = true">+ Novo Treino</button>
-      }
+  <section class="process-hero">
+    <div>
+      <span class="eyebrow">Processo 2</span>
+      <h2>Montagem de Treino e Análise de Intensidade Muscular</h2>
+      <p>
+        Selecione exercícios, ajuste séries e repetições, e acompanhe como o sistema distribui
+        a intensidade entre músculos principais, secundários e estabilizadores.
+      </p>
     </div>
-    <p>Registre e acompanhe sua evolução nos treinos.</p>
-  </div>
-
-  @if (mostrarFormulario) {
-    <div class="form-card">
-      <h3>Novo Treino</h3>
-      <div class="input-group">
-        <label>Nome do Treino</label>
-        <input type="text" placeholder="Ex: Treino A - Peito e Tríceps" [(ngModel)]="nomeTreino" />
+    <div class="hero-metrics">
+      <div class="metric-card">
+        <strong>{{ selecionados.size }}</strong>
+        <span>exercícios</span>
       </div>
-      <div class="exercicios-lista">
-        <label>Exercícios</label>
-        @for (ex of exercicios; track $index) {
-          <div class="exercicio-row">
-            <input type="text" placeholder="Nome do exercício" [(ngModel)]="ex.nome" class="input-exercicio" />
-            <input type="number" placeholder="Séries" [(ngModel)]="ex.series" min="1" class="input-num" />
-            <span>x</span>
-            <input type="number" placeholder="Reps" [(ngModel)]="ex.repeticoes" min="1" class="input-num" />
-            <button class="btn-remover" (click)="removerExercicio($index)">✕</button>
-          </div>
+      <div class="metric-card" [class.warning]="possuiSobrecarga">
+        <strong>{{ possuiSobrecarga ? 'Alerta' : 'OK' }}</strong>
+        <span>{{ possuiSobrecarga ? 'sobrecarga' : 'distribuição' }}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="builder-card">
+    <div class="builder-header">
+      <div>
+        <span class="step-label">1. Acessar montagem de treino</span>
+        <h3>Monte sua rotina</h3>
+      </div>
+      <input
+        type="text"
+        class="treino-name"
+        placeholder="Nome do treino"
+        [(ngModel)]="nomeTreino"
+      />
+    </div>
+
+    <div class="filters-area">
+      <div class="search-box">
+        <label for="buscaExercicio">Pesquisar exercício</label>
+        <input
+          id="buscaExercicio"
+          type="search"
+          placeholder="Ex: supino, agachamento, costas..."
+          [(ngModel)]="busca"
+        />
+      </div>
+
+      <div class="chips-row" aria-label="Filtro de grupos musculares">
+        @for (grupo of grupos; track grupo) {
+          <button
+            type="button"
+            class="filter-chip"
+            [class.active]="grupoSelecionado === grupo"
+            (click)="selecionarGrupo(grupo)"
+          >
+            {{ grupo }}
+          </button>
         }
       </div>
-      <button class="btn-add-ex" (click)="adicionarExercicio()">+ Exercício</button>
-      @if (erro) {
-        <div class="erro-msg">{{ erro }}</div>
-      }
-      <div class="form-actions">
-        <button class="btn-cancelar" (click)="cancelar()">Cancelar</button>
-        <button class="btn-salvar" (click)="salvarTreino()" [disabled]="salvando">
-          {{ salvando ? 'Salvando...' : 'Salvar Treino' }}
-        </button>
-      </div>
     </div>
-  }
 
-  @if (carregando) {
-    <div class="estado-vazio">Carregando treinos...</div>
-  } @else if (treinos.length === 0 && !mostrarFormulario) {
-    <div class="estado-vazio">
-      <p>Nenhum treino cadastrado ainda.</p>
-      <p>Clique em <strong>+ Novo Treino</strong> para começar.</p>
-    </div>
-  } @else if (!mostrarFormulario) {
-    <div class="treinos-grid">
-      @for (treino of treinos; track treino.id) {
-        <div class="treino-card">
-          <div class="treino-card-header">
-            <h4>{{ treino.nome }}</h4>
-            <div class="treino-actions">
-              <span class="treino-data">{{ formatarData(treino.criadoEm) }}</span>
-              <button class="btn-deletar" (click)="deletarTreino(treino.id!)">🗑</button>
-            </div>
+    <div class="main-grid">
+      <div class="catalog-panel">
+        <div class="panel-title">
+          <span class="step-label">2. Selecionar exercícios desejados</span>
+          <span>{{ exerciciosFiltrados.length }} encontrados</span>
+        </div>
+
+        <div class="exercise-grid">
+          @for (ex of exerciciosFiltrados; track ex.id) {
+            <article
+              class="exercise-card"
+              [class.selected]="estaSelecionado(ex)"
+              (click)="alternarExercicio(ex)"
+            >
+              <div class="exercise-media">
+                <img [src]="ex.imagem" [alt]="ex.nome" loading="lazy" />
+                <span class="group-badge">{{ ex.grupo }}</span>
+              </div>
+
+              <div class="exercise-content">
+                <div class="exercise-heading">
+                  <h4>{{ ex.nome }}</h4>
+                  <span class="checkmark">✓</span>
+                </div>
+                <p>{{ ex.descricao }}</p>
+
+                <div class="muscle-tags">
+                  @for (musculo of ex.musculos; track musculo.nome + musculo.papel) {
+                    <span [class]="'muscle-tag ' + musculo.papel">
+                      {{ musculo.nome }} • {{ rotuloPapel(musculo.papel) }}
+                    </span>
+                  }
+                </div>
+
+                @if (estaSelecionado(ex)) {
+                  <div class="volume-controls" (click)="$event.stopPropagation()">
+                    <label>
+                      Séries
+                      <input type="number" min="1" max="12" [(ngModel)]="volumes[ex.id].series" />
+                    </label>
+                    <label>
+                      Reps
+                      <input type="number" min="1" max="40" [(ngModel)]="volumes[ex.id].repeticoes" />
+                    </label>
+                  </div>
+                }
+              </div>
+            </article>
+          } @empty {
+            <div class="empty-state">Nenhum exercício encontrado para esse filtro.</div>
+          }
+        </div>
+      </div>
+
+      <aside class="analysis-panel">
+        <div class="panel-title stacked">
+          <span class="step-label">3. Sistema registra e analisa</span>
+          <h3>Resumo da sessão</h3>
+        </div>
+
+        @if (exerciciosSelecionados.length === 0) {
+          <div class="empty-analysis">
+            Selecione pelo menos dois exercícios para calcular a distribuição muscular.
           </div>
-          <ul class="exercicios-lista-view">
-            @for (ex of treino.exercicios; track $index) {
-              <li>
-                <span class="ex-nome">{{ ex.nome }}</span>
-                <span class="ex-info">{{ ex.series }}x{{ ex.repeticoes }}</span>
-              </li>
+        } @else {
+          <div class="selected-list">
+            @for (ex of exerciciosSelecionados; track ex.id) {
+              <div class="selected-item">
+                <div>
+                  <strong>{{ ex.nome }}</strong>
+                  <span>{{ volumes[ex.id].series }}x{{ volumes[ex.id].repeticoes }}</span>
+                </div>
+                <button type="button" (click)="removerExercicio(ex.id)">Remover</button>
+              </div>
             }
-          </ul>
+          </div>
+
+          @if (selecionados.size === 1) {
+            <div class="info-message">Adicione mais um exercício para caracterizar um treino completo.</div>
+          }
+        }
+
+        @if (analise.length > 0) {
+          <div class="analysis-list">
+            @for (item of analise; track item.musculo) {
+              <div class="analysis-row" [class.overload]="item.sobrecarga">
+                <div class="analysis-row-header">
+                  <strong>{{ item.musculo }}</strong>
+                  <span [class]="'level ' + item.nivel">{{ item.nivel }}</span>
+                </div>
+                <div class="bar-track">
+                  <div class="bar-fill" [style.width.%]="percentual(item.score)"></div>
+                </div>
+                <small>{{ item.score }} pts • {{ item.exercicios.join(', ') }}</small>
+              </div>
+            }
+          </div>
+        }
+
+        @if (possuiSobrecarga) {
+          <div class="alert-box">
+            <strong>Possível sobrecarga detectada</strong>
+            <p>
+              O treino concentra estímulo em {{ sobrecargas[0].musculo }}.
+              Considere reduzir volume ou alternar o grupo muscular.
+            </p>
+          </div>
+        }
+
+        @if (mensagem) {
+          <div class="info-message">{{ mensagem }}</div>
+        }
+
+        <div class="action-row">
+          <button type="button" class="btn-secondary" (click)="limparTreino()" [disabled]="selecionados.size === 0">
+            Limpar
+          </button>
+          <button type="button" class="btn-primary" (click)="finalizarAnalise()" [disabled]="selecionados.size < 2">
+            Visualizar resumo
+          </button>
         </div>
-      }
+        <button type="button" class="btn-save" (click)="salvarTreino()" [disabled]="selecionados.size < 2 || !nomeTreino.trim()">
+          Salvar treino analisado
+        </button>
+      </aside>
     </div>
+  </section>
+
+  @if (mostrarResumoFinal) {
+    <section class="final-summary">
+      <div class="summary-header">
+        <div>
+          <span class="step-label">4. Resumo final do treino</span>
+          <h3>{{ nomeTreino }}</h3>
+        </div>
+        <span class="summary-status" [class.warning]="possuiSobrecarga">
+          {{ possuiSobrecarga ? 'Com alerta de sobrecarga' : 'Treino equilibrado' }}
+        </span>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h4>Músculos mais trabalhados</h4>
+          @for (item of musculosMaisTrabalhados; track item.musculo) {
+            <p><strong>{{ item.musculo }}</strong> — intensidade {{ item.nivel }} ({{ item.score }} pts)</p>
+          }
+        </div>
+        <div class="summary-card">
+          <h4>Músculos menos trabalhados</h4>
+          @for (item of musculosMenosTrabalhados; track item.musculo) {
+            <p><strong>{{ item.musculo }}</strong> — intensidade {{ item.nivel }} ({{ item.score }} pts)</p>
+          }
+        </div>
+        <div class="summary-card">
+          <h4>Exercícios escolhidos</h4>
+          @for (ex of exerciciosSelecionados; track ex.id) {
+            <p><strong>{{ ex.nome }}</strong> — {{ volumes[ex.id].series }} séries x {{ volumes[ex.id].repeticoes }} reps</p>
+          }
+        </div>
+      </div>
+    </section>
   }
 
-  <hr class="section-divider" />
-
-  <div class="dashboard-header">
-    <h2>🏋️‍♂️ Guia de Exercícios por Agrupamento</h2>
-    <p>Explore as melhores opções de movimentos para cada estímulo muscular.</p>
-  </div>
-
-  <div class="builder-grid">
-    <section class="muscle-group-section">
-      <div class="group-title">🍒 Exercícios para Peitoral</div>
-      <div class="exercises-list">
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Supino Reto (Barra ou Halteres)</span><span class="ex-desc">Foco em Peitoral Maior (Massa Global)</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Supino Inclinado com Halteres</span><span class="ex-desc">Foco na Porção Clavicular (Superior)</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Crucifixo Máquina / Pec Deck</span><span class="ex-desc">Isolamento e Máximo Alongamento</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Cross Over (Polia Alta)</span><span class="ex-desc">Foco na Porção Inferior e Contração</span></div></div>
+  <section class="saved-section">
+    <div class="section-title">Treinos salvos</div>
+    @if (treinosSalvos.length === 0) {
+      <div class="empty-state">Nenhum treino analisado foi salvo ainda.</div>
+    } @else {
+      <div class="saved-grid">
+        @for (treino of treinosSalvos; track treino.id) {
+          <article class="saved-card" [class.warning]="treino.possuiAlerta">
+            <div class="saved-header">
+              <div>
+                <h4>{{ treino.nome }}</h4>
+                <span>{{ formatarData(treino.criadoEm) }}</span>
+              </div>
+              <button type="button" (click)="excluirTreino(treino.id)">Excluir</button>
+            </div>
+            <p>{{ treino.exercicios.length }} exercícios • {{ treino.possuiAlerta ? 'com alerta' : 'sem alerta' }}</p>
+            <ul>
+              @for (ex of treino.exercicios; track ex.nome) {
+                <li>{{ ex.nome }} — {{ ex.series }}x{{ ex.repeticoes }}</li>
+              }
+            </ul>
+          </article>
+        }
       </div>
-    </section>
-
-    <section class="muscle-group-section">
-      <div class="group-title">🦅 Exercícios para Costas (Dorsal)</div>
-      <div class="exercises-list">
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Puxada Alta na Polia</span><span class="ex-desc">Foco em Largura e Grande Dorsal</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Remada Curvada com Barra</span><span class="ex-desc">Foco em Espessura e Miolo das Costas</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Remada Baixa Triângulo</span><span class="ex-desc">Trabalho Consistente de Dorsal Baixo</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Pull Down na Polia Alta</span><span class="ex-desc">Isolamento puro da Dorsal sem Bíceps</span></div></div>
-      </div>
-    </section>
-
-    <section class="muscle-group-section">
-      <div class="group-title">🛡️ Exercícios para Ombros (Deltoides)</div>
-      <div class="exercises-list">
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Desenvolvimento com Halteres</span><span class="ex-desc">Foco na Porção Anterior (Frente)</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Elevação Lateral com Halteres</span><span class="ex-desc">Foco na Porção Lateral (Aspecto Largo)</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Crucifixo Invertido (Posterior)</span><span class="ex-desc">Foco no Deltoide Posterior (Costas do Ombro)</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Encolhimento com Halteres</span><span class="ex-desc">Foco no Trapézio Superior</span></div></div>
-      </div>
-    </section>
-
-    <section class="muscle-group-section">
-      <div class="group-title">⚡ Exercícios para Tríceps</div>
-      <div class="exercises-list">
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Tríceps na Polia (Corda ou Barra)</span><span class="ex-desc">Foco na Porção Lateral e Contração</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Tríceps Testa com Barra W</span><span class="ex-desc">Foco na Porção Longa (Massa de Trás)</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Tríceps Coice na Polia</span><span class="ex-desc">Isolamento e Pico de Contração</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Mergulho nas Paralelas / Banco</span><span class="ex-desc">Exercício Composto de Alta Potência</span></div></div>
-      </div>
-    </section>
-
-    <section class="muscle-group-section">
-      <div class="group-title">💪 Exercícios para Bíceps</div>
-      <div class="exercises-list">
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Rosca Direta com Barra W</span><span class="ex-desc">Construção Geral de Massa do Bíceps</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Rosca Alternada com Halteres</span><span class="ex-desc">Trabalho Unilateral com Supinação</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Rosca Scott no Banco</span><span class="ex-desc">Isolamento Rigoroso e Pico do Bíceps</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Rosca Martelo com Halteres</span><span class="ex-desc">Foco no Braquial (Espessura) e Antebraço</span></div></div>
-      </div>
-    </section>
-
-    <section class="muscle-group-section">
-      <div class="group-title">🥖 Exercícios para Antebraço</div>
-      <div class="exercises-list">
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Rosca Inversa com Barra W</span><span class="ex-desc">Foco em Braquiorradial e Extensores</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Flexão de Punho (Barra ou Halteres)</span><span class="ex-desc">Isolamento dos Flexores do Antebraço</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Extensão de Punho com Halteres</span><span class="ex-desc">Fortalecimento da Região Superior do Braço</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Caminhada do Fazendeiro (Farmer's Walk)</span><span class="ex-desc">Força de Pegada Brutal e Resistência</span></div></div>
-      </div>
-    </section>
-
-    <section class="muscle-group-section">
-      <div class="group-title">🍗 Exercícios para Quadríceps</div>
-      <div class="exercises-list">
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Agachamento Livre com Barra</span><span class="ex-desc">O Rei dos Exercícios de Pernas</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Leg Press 45°</span><span class="ex-desc">Trabalho Pesado de Força com Segurança</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Cadeira Extensora</span><span class="ex-desc">Isolamento e Definição do Reto Femoral</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Avanço com Halteres</span><span class="ex-desc">Trabalho Unilateral com Equilíbrio</span></div></div>
-      </div>
-    </section>
-
-    <section class="muscle-group-section">
-      <div class="group-title">🦵 Exercícios para Posteriores (Isquiotibiais)</div>
-      <div class="exercises-list">
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Stiff com Barra ou Halteres</span><span class="ex-desc">Extensão de Quadril e Posterior de Coxa</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Cadeira Flexora</span><span class="ex-desc">Isolamento Direto dos Isquiotibiais</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Elevação Pélvica (Glúteo-Isquio)</span><span class="ex-desc">Foco em Glúteo e Posterior Integrado</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Mesa Flexora (Prone Leg Curl)</span><span class="ex-desc">Isolamento com Amplitude Longa</span></div></div>
-      </div>
-    </section>
-
-    <section class="muscle-group-section">
-      <div class="group-title">🍑 Exercícios para Glúteos</div>
-      <div class="exercises-list">
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Agachamento Sumô com Halteres</span><span class="ex-desc">Foco em Glúteo Médio e Adutores</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Elevação Pélvica com Barra</span><span class="ex-desc">Foco no Glúteo Máximo (Pico de Contração)</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Cadeira Abdutora (Pushing)</span><span class="ex-desc">Foco no Glúteo Médio (Lateral)</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Avanço Lateral com Halteres</span><span class="ex-desc">Foco no Glúteo Médio e Quadril</span></div></div>
-      </div>
-    </section>
-
-    <section class="muscle-group-section">
-      <div class="group-title">🧦 Exercícios para Panturrilhas</div>
-      <div class="exercises-list">
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Panturrilha em Pé na Máquina</span><span class="ex-desc">Foco no Gastrocnêmio (Massa Alta)</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Panturrilha Sentado na Máquina</span><span class="ex-desc">Foco no Sóleo (Profundo)</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Panturrilha no Leg Press</span><span class="ex-desc">Variação Confortável para Cargas Altas</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Gêmeos Unilateral com Halter</span><span class="ex-desc">Estímulo Focado com Peso Corporal</span></div></div>
-      </div>
-    </section>
-
-    <section class="muscle-group-section">
-      <div class="group-title">🍫 Core & Abdômen</div>
-      <div class="exercises-list">
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Abdominal Infra (Elevação de Pernas)</span><span class="ex-desc">Foco na Porção Inferior da Linha de Cintura</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Abdominal Supra Clássico</span><span class="ex-desc">Foco na Porção Superior do Reto Abdominal</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Prancha Isométrica</span><span class="ex-desc">Fortalecimento e Estabilização Profunda do Core</span></div></div>
-        <div class="exercise-item"><div class="exercise-info"><span class="ex-name">Abdominal Russo (Giro Oblíquo)</span><span class="ex-desc">Foco nas Laterais do Abdômen</span></div></div>
-      </div>
-    </section>
-  </div>
-
-  <hr class="section-divider" />
-
-  <section class="routines-section">
-    <div class="section-title">📋 Estruturas de Fichas Prontas (Modelos de Divisão)</div>
-    <p class="section-subtitle">
-      Selecione uma das divisões consagradas para ver como encaixar os exercícios acima no seu planejamento:
-    </p>
-
-    <div class="division-selector">
-      <button class="btn-tab" (click)="activeDivision = 'abc'" [class.active]="activeDivision === 'abc'">Estrutura ABC</button>
-      <button class="btn-tab" (click)="activeDivision = 'abcd'" [class.active]="activeDivision === 'abcd'">Estrutura ABCD</button>
-      <button class="btn-tab" (click)="activeDivision = 'abcde'" [class.active]="activeDivision === 'abcde'">Estrutura ABCDE</button>
-    </div>
-
-    <div class="routines-display-box">
-      @if (activeDivision === 'abc') {
-        <div class="division-content">
-          <h3>📆 Cronograma ABC (Frequência Alta)</h3>
-          <div class="days-grid">
-            <div class="day-block"><strong>Treino A • Superior (Peito, Ombro, Tríceps):</strong> Supino Reto, Supino Inclinado, Elevação Lateral e Tríceps Polia.</div>
-            <div class="day-block"><strong>Treino B • Superior (Costas, Bíceps, Antebraço):</strong> Puxada Alta, Remada Curvada, Rosca Direta e Rosca Inversa.</div>
-            <div class="day-block"><strong>Treino C • Inferior (Pernas Completo & Core):</strong> Agachamento, Leg Press, Cadeira Flexora e Prancha.</div>
-          </div>
-        </div>
-      }
-      @if (activeDivision === 'abcd') {
-        <div class="division-content">
-          <h3>📆 Cronograma ABCD (Volume Intermediário)</h3>
-          <div class="days-grid">
-            <div class="day-block"><strong>Treino A • Peitoral e Tríceps:</strong> Supino Reto, Supino Inclinado, Crossover e Tríceps Testa.</div>
-            <div class="day-block"><strong>Treino B • Dorsais e Bíceps:</strong> Puxada Alta, Remada Baixa, Pull Down e Rosca Scott.</div>
-            <div class="day-block"><strong>Treino C • Ombros, Antebraço e Core:</strong> Desenvolvimento, Elevação Lateral, Rosca Inversa e Abdominal Infra.</div>
-            <div class="day-block"><strong>Treino D • Membros Inferiores:</strong> Agachamento, Leg Press, Stiff e Gêmeos Sentado.</div>
-          </div>
-        </div>
-      }
-      @if (activeDivision === 'abcde') {
-        <div class="division-content">
-          <h3>📆 Cronograma ABCDE (Foco Isomórfico de Alta Intensidade)</h3>
-          <div class="days-grid">
-            <div class="day-block"><strong>Treino A • Peito Isolado:</strong> Supino Reto, Supino Inclinado, Pec Deck e Crossover.</div>
-            <div class="day-block"><strong>Treino B • Costas e Antebraço:</strong> Puxada Alta, Remada Curvada, Pull Down e Flexão de Punho.</div>
-            <div class="day-block"><strong>Treino C • Membros Inferiores:</strong> Agachamento Livre, Leg Press, Stiff e Elevação Pélvica.</div>
-            <div class="day-block"><strong>Treino D • Ombros e Core:</strong> Desenvolvimento, Elevação Lateral, Posterior Máquina e Abdominais.</div>
-            <div class="day-block"><strong>Treino E • Braços Completos:</strong> Rosca Direta, Tríceps Polia, Rosca Scott e Tríceps Testa.</div>
-          </div>
-        </div>
-      }
-    </div>
+    }
   </section>
-
-  <section class="pillars-section">
-    <div class="section-title">📊 Os 3 Pilares Fundamentais do Treino</div>
-    <div class="pillars-grid">
-      <div class="pillar-card">
-        <span class="pillar-icon">🎯</span>
-        <h4>Perfeição na Execução</h4>
-        <p>A amplitude máxima e cadência controlada geram mais estresse metabólico e previnem lesões graves.</p>
-      </div>
-      <div class="pillar-card">
-        <span class="pillar-icon">📈</span>
-        <h4>Progressão de Carga</h4>
-        <p>Tente aumentar o peso ou o número de repetições a cada semana para forçar o processo de hipertrofia.</p>
-      </div>
-      <div class="pillar-card">
-        <span class="pillar-icon">⏱️</span>
-        <h4>Tempo de Descanso</h4>
-        <p>Descanse de 90 a 120 segundos. Isso restaura o estoque de energia celular para manter a performance nas séries.</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="science-section">
-    <div class="section-title">🔬 Base Científica: Por que rotacionar seus treinos?</div>
-    <div class="science-card">
-      <p>Estudos da ciência do esporte apontam que o sistema neuromuscular atinge um platô de adaptação biológica a cada <strong>8 a 12 weeks</strong> de estímulos idênticos.</p>
-      <p style="margin-top: 10px">Mudar estrategicamente a sua divisão (passar de um ABC para um ABCD, por exemplo) ou alterar a seleção e ordem dos exercícios quebra esse estado estável. Isso recruta novas unidades motoras adormecidas, reinicia o processo de microlesões saudáveis nas fibras e gera novos picos de força, garantindo evolução contínua.</p>
-    </div>
-  </section>
-
 </div>
