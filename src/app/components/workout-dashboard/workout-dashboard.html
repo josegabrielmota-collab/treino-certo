@@ -180,8 +180,13 @@
             Visualizar resumo
           </button>
         </div>
-        <button type="button" class="btn-save" (click)="salvarTreino()" [disabled]="selecionados.size < 2 || !nomeTreino.trim()">
-          Salvar treino analisado
+        <button
+          type="button"
+          class="btn-save"
+          (click)="salvarTreino()"
+          [disabled]="salvandoTreino || selecionados.size < 2 || !nomeTreino.trim()"
+        >
+          {{ salvandoTreino ? 'Salvando...' : 'Salvar treino analisado' }}
         </button>
       </aside>
     </div>

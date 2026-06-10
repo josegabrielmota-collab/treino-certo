@@ -1,6 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Timestamp } from 'firebase/firestore';
+
+import { AuthService } from '../../services/auth.service';
+import { Treino, TreinoService } from '../../services/treino.service';
 
 type PapelMuscular = 'principal' | 'secundario' | 'estabilizador';
 type NivelIntensidade = 'baixa' | 'média' | 'alta';
@@ -33,19 +37,6 @@ interface AnaliseMuscular {
   sobrecarga: boolean;
 }
 
-interface TreinoSalvo {
-  id: number;
-  nome: string;
-  criadoEm: string;
-  exercicios: Array<{
-    nome: string;
-    series: number;
-    repeticoes: number;
-  }>;
-  analise: AnaliseMuscular[];
-  possuiAlerta: boolean;
-}
-
 @Component({
   selector: 'app-workout-dashboard',
   standalone: true,
@@ -62,7 +53,29 @@ export class WorkoutDashboardComponent implements OnInit {
 
   selecionados = new Set<string>();
   volumes: Record<string, VolumeConfig> = {};
-  treinosSalvos: TreinoSalvo[] = [];
+  treinosSalvos: Treino[] = [];
+  carregandoTreinos = false;
+  salvandoTreino = false;
+
+  constructor(
+    private readonly treinoService: TreinoService,
+    public readonly authService: AuthService
+  ) {
+    effect(() => {
+      const usuario = this.authService.currentUser();
+
+      if (usuario === undefined) {
+        return;
+      }
+
+      if (!usuario) {
+        this.treinosSalvos = [];
+        return;
+      }
+
+      void this.carregarTreinosDoFirebase(usuario.uid);
+    });
+  }
 
   readonly grupos = [
     'Todos',
@@ -551,51 +564,90 @@ export class WorkoutDashboardComponent implements OnInit {
     },
   ];
 
-  ngOnInit(): void {
+      ngOnInit(): void {
     for (const exercicio of this.exercicios) {
       this.volumes[exercicio.id] = { series: 3, repeticoes: 10 };
     }
+  }
 
-    const salvos = localStorage.getItem('treino-certo-treinos-analisados');
-    if (salvos) {
-      this.treinosSalvos = JSON.parse(salvos) as TreinoSalvo[];
+  private async carregarTreinosDoFirebase(uid: string): Promise<void> {
+    this.carregandoTreinos = true;
+
+    try {
+      this.treinosSalvos = await this.treinoService.buscarTreinos(uid);
+    } catch (erro) {
+      console.error('Erro ao carregar treinos do Firebase:', erro);
+      this.mensagem = 'Não foi possível carregar os treinos salvos no Firebase.';
+    } finally {
+      this.carregandoTreinos = false;
     }
   }
 
   get exerciciosFiltrados(): ExercicioCatalogo[] {
     const termo = this.normalizar(this.busca);
+
     return this.exercicios.filter((exercicio) => {
-      const bateGrupo = this.grupoSelecionado === 'Todos' || exercicio.grupo === this.grupoSelecionado;
+      const bateGrupo =
+        this.grupoSelecionado === 'Todos' ||
+        exercicio.grupo === this.grupoSelecionado;
+
       const bateBusca =
         !termo ||
         this.normalizar(exercicio.nome).includes(termo) ||
         this.normalizar(exercicio.descricao).includes(termo) ||
         this.normalizar(exercicio.grupo).includes(termo);
+
       return bateGrupo && bateBusca;
     });
   }
 
   get exerciciosSelecionados(): ExercicioCatalogo[] {
-    return this.exercicios.filter((exercicio) => this.selecionados.has(exercicio.id));
+    return this.exercicios.filter((exercicio) =>
+      this.selecionados.has(exercicio.id)
+    );
   }
 
   get analise(): AnaliseMuscular[] {
-    const mapa = new Map<string, { score: number; exercicios: string[]; papeis: PapelMuscular[]; primarios: number }>();
+    const mapa = new Map<
+      string,
+      {
+        score: number;
+        exercicios: string[];
+        papeis: PapelMuscular[];
+        primarios: number;
+      }
+    >();
 
     for (const exercicio of this.exerciciosSelecionados) {
-      const volume = this.volumes[exercicio.id] ?? { series: 3, repeticoes: 10 };
-      const fatorVolume = Math.max(0.5, (Number(volume.series) * Number(volume.repeticoes)) / 30);
+      const volume = this.volumes[exercicio.id] ?? {
+        series: 3,
+        repeticoes: 10,
+      };
+
+      const fatorVolume = Math.max(
+        0.5,
+        (Number(volume.series) * Number(volume.repeticoes)) / 30
+      );
 
       for (const musculo of exercicio.musculos) {
         const pesoBase = this.pesoPorPapel(musculo.papel);
         const score = pesoBase * fatorVolume;
-        const atual = mapa.get(musculo.nome) ?? { score: 0, exercicios: [], papeis: [], primarios: 0 };
+
+        const atual = mapa.get(musculo.nome) ?? {
+          score: 0,
+          exercicios: [],
+          papeis: [],
+          primarios: 0,
+        };
+
         atual.score += score;
         atual.exercicios.push(exercicio.nome);
         atual.papeis.push(musculo.papel);
+
         if (musculo.papel === 'principal') {
           atual.primarios += 1;
         }
+
         mapa.set(musculo.nome, atual);
       }
     }
@@ -625,7 +677,10 @@ export class WorkoutDashboardComponent implements OnInit {
   }
 
   get musculosMenosTrabalhados(): AnaliseMuscular[] {
-    return [...this.analise].filter((item) => item.score > 0).sort((a, b) => a.score - b.score).slice(0, 3);
+    return [...this.analise]
+      .filter((item) => item.score > 0)
+      .sort((a, b) => a.score - b.score)
+      .slice(0, 3);
   }
 
   selecionarGrupo(grupo: string): void {
@@ -638,6 +693,7 @@ export class WorkoutDashboardComponent implements OnInit {
     } else {
       this.selecionados.add(exercicio.id);
     }
+
     this.mostrarResumoFinal = false;
     this.mensagem = '';
   }
@@ -659,7 +715,8 @@ export class WorkoutDashboardComponent implements OnInit {
 
   finalizarAnalise(): void {
     if (this.selecionados.size < 2) {
-      this.mensagem = 'Selecione pelo menos dois exercícios para compor um treino e gerar a análise do Processo 2.';
+      this.mensagem =
+        'Selecione pelo menos dois exercícios para compor um treino e gerar a análise do Processo 2.';
       this.mostrarResumoFinal = false;
       return;
     }
@@ -668,8 +725,9 @@ export class WorkoutDashboardComponent implements OnInit {
     this.mostrarResumoFinal = true;
   }
 
-  salvarTreino(): void {
+  async salvarTreino(): Promise<void> {
     this.finalizarAnalise();
+
     if (!this.mostrarResumoFinal || !this.nomeTreino.trim()) {
       if (!this.nomeTreino.trim()) {
         this.mensagem = 'Informe um nome para salvar o treino.';
@@ -677,27 +735,74 @@ export class WorkoutDashboardComponent implements OnInit {
       return;
     }
 
-    const treino: TreinoSalvo = {
-      id: Date.now(),
+    const usuario = this.authService.currentUser();
+
+    if (!usuario) {
+      this.mensagem = 'Faça login para salvar o treino na sua conta.';
+      return;
+    }
+
+    const treino: Omit<Treino, 'id'> = {
+      uid: usuario.uid,
       nome: this.nomeTreino.trim(),
-      criadoEm: new Date().toISOString(),
+      criadoEm: Timestamp.now(),
       exercicios: this.exerciciosSelecionados.map((exercicio) => ({
+        id: exercicio.id,
         nome: exercicio.nome,
-        series: this.volumes[exercicio.id].series,
-        repeticoes: this.volumes[exercicio.id].repeticoes,
+        grupo: exercicio.grupo,
+        series: Number(this.volumes[exercicio.id].series),
+        repeticoes: Number(this.volumes[exercicio.id].repeticoes),
       })),
-      analise: this.analise,
+      analise: this.analise.map((item) => ({
+        musculo: item.musculo,
+        score: item.score,
+        nivel: item.nivel,
+        exercicios: item.exercicios,
+        papeis: item.papeis,
+        sobrecarga: item.sobrecarga,
+      })),
       possuiAlerta: this.possuiSobrecarga,
     };
 
-    this.treinosSalvos = [treino, ...this.treinosSalvos].slice(0, 6);
-    localStorage.setItem('treino-certo-treinos-analisados', JSON.stringify(this.treinosSalvos));
-    this.mensagem = 'Treino salvo com a análise de intensidade muscular.';
+    this.salvandoTreino = true;
+
+    try {
+      const id = await this.treinoService.salvarTreino(treino);
+
+      this.treinosSalvos = [
+        {
+          id,
+          ...treino,
+        },
+        ...this.treinosSalvos,
+      ];
+
+      this.mensagem = 'Treino salvo no Firebase com sucesso.';
+    } catch (erro) {
+      console.error('Erro ao salvar treino no Firebase:', erro);
+      this.mensagem = 'Erro ao salvar o treino no Firebase.';
+    } finally {
+      this.salvandoTreino = false;
+    }
   }
 
-  excluirTreino(id: number): void {
-    this.treinosSalvos = this.treinosSalvos.filter((treino) => treino.id !== id);
-    localStorage.setItem('treino-certo-treinos-analisados', JSON.stringify(this.treinosSalvos));
+  async excluirTreino(id: string | undefined): Promise<void> {
+    if (!id) {
+      return;
+    }
+
+    try {
+      await this.treinoService.deletarTreino(id);
+
+      this.treinosSalvos = this.treinosSalvos.filter(
+        (treino) => treino.id !== id
+      );
+
+      this.mensagem = 'Treino excluído do Firebase.';
+    } catch (erro) {
+      console.error('Erro ao excluir treino do Firebase:', erro);
+      this.mensagem = 'Erro ao excluir o treino do Firebase.';
+    }
   }
 
   percentual(score: number): number {
@@ -711,16 +816,20 @@ export class WorkoutDashboardComponent implements OnInit {
       secundario: 'Secundário',
       estabilizador: 'Estabilizador',
     };
+
     return mapa[papel];
   }
 
-  formatarData(iso: string): string {
+  formatarData(data: string | Timestamp): string {
+    const dataConvertida =
+      typeof data === 'string' ? new Date(data) : data.toDate();
+
     return new Intl.DateTimeFormat('pt-BR', {
       day: '2-digit',
       month: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-    }).format(new Date(iso));
+    }).format(dataConvertida);
   }
 
   private pesoPorPapel(papel: PapelMuscular): number {
@@ -729,12 +838,19 @@ export class WorkoutDashboardComponent implements OnInit {
       secundario: 2,
       estabilizador: 1,
     };
+
     return pesos[papel];
   }
 
   private nivelPorScore(score: number): NivelIntensidade {
-    if (score >= 7) return 'alta';
-    if (score >= 3) return 'média';
+    if (score >= 7) {
+      return 'alta';
+    }
+
+    if (score >= 3) {
+      return 'média';
+    }
+
     return 'baixa';
   }
 
@@ -745,3 +861,4 @@ export class WorkoutDashboardComponent implements OnInit {
       .replace(/[\u0300-\u036f]/g, '');
   }
 }
+
