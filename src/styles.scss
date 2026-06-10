@@ -9,9 +9,15 @@
 :root {
   --bg-principal: #121214;
   --bg-card: #1a1a1e;
-  --cor-primaria: #00ff88; /* Verde Neon/Esportivo */
+  --cor-primaria: #00ff88;
   --texto-claro: #ffffff;
   --texto-mutado: #a8a8b3;
+}
+
+html,
+body {
+  min-height: 100%;
+  background: #121214;
 }
 
 .app-container {
@@ -38,6 +44,7 @@
   .logo {
     font-weight: bold;
     font-size: 1.2rem;
+
     span {
       color: #00ff88;
     }
@@ -48,7 +55,7 @@
 .app-content {
   flex: 1;
   padding: 20px;
-  margin-bottom: 70px; /* Espaço para não cobrir o menu de baixo */
+  margin-bottom: 70px;
 
   .card-dashboard {
     background-color: #1a1a1e;
@@ -59,6 +66,7 @@
     h3 {
       margin-bottom: 8px;
     }
+
     p {
       color: #a8a8b3;
       margin-bottom: 12px;
@@ -76,7 +84,7 @@
   }
 }
 
-/* Menu de Navegação - VERSÃO MOBILE (Barra Inferior) */
+/* Menu de Navegação - Versão mobile */
 .app-nav {
   position: fixed;
   bottom: 0;
@@ -111,7 +119,7 @@
   }
 }
 
-/* 🖥️ ADAPTAÇÃO PARA PC (Telas maiores que 768px) */
+/* Adaptação para PC */
 @media (min-width: 768px) {
   .app-container {
     display: grid;
@@ -120,6 +128,8 @@
       'nav content';
     grid-template-columns: 240px 1fr;
     grid-template-rows: 60px 1fr;
+    height: 100vh;
+    overflow: hidden;
   }
 
   .app-header {
@@ -128,14 +138,17 @@
 
   .app-content {
     grid-area: content;
-    margin-bottom: 0; /* No PC não precisa desse espaço inferior */
-    padding: 4px;
+    margin-bottom: 0;
+    padding: 24px;
+    min-width: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .app-nav {
     grid-area: nav;
-    position: static; /* Remove a fixação inferior */
-    flex-direction: column; /* Menu fica vertical */
+    position: static;
+    flex-direction: column;
     justify-content: flex-start;
     padding-top: 40px;
     gap: 20px;
